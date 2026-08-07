@@ -1,0 +1,12 @@
+groups:
+  - name: pizza_alerts
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 15s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Сервис {{ $labels.instance }} недоступен!"
+          description: "Контейнер {{ $labels.job }} ({{ $labels.instance }}) ушел в оффлайн."
+          

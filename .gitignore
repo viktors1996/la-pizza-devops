@@ -1,0 +1,19 @@
+# Python / Virtual Environment
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# Environment variables (секреты и пароли)
+.env
+
+# IDE / Editors
+.vscode/
+.idea/
+.cursor/
+
+# OS junk
+.DS_Store
+Thumbs.db
