@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Pizza — Доставка пиццы</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <!-- Header -->
+    <header class="bg-red-600 text-white p-4 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-wide">🍕 La Pizza</h1>
+            <div class="text-sm font-semibold bg-red-700 px-3 py-1 rounded-full">
+                Статус API: <span id="api-status" class="text-yellow-300">Проверка...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto mt-8 px-4">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Наше Меню</h2>
+        
+        <!-- Pizza Grid -->
+        <div id="pizza-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <p class="text-gray-500 text-center col-span-3">Загрузка меню...</p>
+        </div>
+    </main>
+
+    <!-- Order Modal -->
+    <div id="order-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-xl">
+            <h3 class="text-xl font-bold mb-4">Оформить заказ: <span id="modal-pizza-name" class="text-red-600"></span></h3>
+            <form id="order-form" class="space-y-4">
+                <input type="hidden" id="pizza-id">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Ваше имя</label>
+                    <input type="text" id="customer-name" required class="w-full border p-2 rounded mt-1 focus:ring-2 focus:ring-red-500 border-gray-300">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Адрес доставки</label>
+                    <input type="text" id="customer-address" required class="w-full border p-2 rounded mt-1 focus:ring-2 focus:ring-red-500 border-gray-300">
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800">Отмена</button>
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-bold">Подтвердить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+
+        // 1. Проверка здоровья API
+        async function checkHealth() {
+            try {
+                const res = await fetch('/health');
+                if (res.ok) {
+                    document.getElementById('api-status').innerText = 'Online 🟢';
+                    document.getElementById('api-status').className = 'text-green-300';
+                }
+            } catch (e) {
+                document.getElementById('api-status').innerText = 'Offline 🔴';
+                document.getElementById('api-status').className = 'text-red-300';
+            }
+        }
+
+        // 2. Загрузка меню
+        async function loadMenu() {
+            try {
+                const res = await fetch(`${API_URL}/menu`);
+                const data = await res.json();
+                const container = document.getElementById('pizza-list');
+                
+                container.innerHTML = data.map(pizza => `
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                        <div class="h-48 bg-gray-200 flex items-center justify-center text-5xl">🍕</div>
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold text-gray-800">${pizza.name}</h3>
+                            <p class="text-gray-600 font-bold mt-2">$${pizza.price}</p>
+                            <button onclick="openModal(${pizza.id}, '${pizza.name}')" 
+                                    class="w-full mt-4 bg-red-600 text-white py-2 rounded hover:bg-red-700 font-semibold transition">
+                                Заказать
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                document.getElementById('pizza-list').innerHTML = '<p class="text-red-500 col-span-3 text-center">Ошибка загрузки меню</p>';
+            }
+        }
+
+        // 3. Управление модальным окном
+        function openModal(id, name) {
+            document.getElementById('pizza-id').value = id;
+            document.getElementById('modal-pizza-name').innerText = name;
+            document.getElementById('order-modal').classList.remove('hidden');
+            document.getElementById('order-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('order-modal').classList.add('hidden');
+            document.getElementById('order-modal').classList.remove('flex');
+        }
+
+        // 4. Отправка заказа
+        document.getElementById('order-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const orderData = {
+                pizza_id: document.getElementById('pizza-id').value,
+                name: document.getElementById('customer-name').value,
+                address: document.getElementById('customer-address').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+                if (res.ok) {
+                    alert('Заказ успешно принят!');
+                    closeModal();
+                }
+            } catch (e) {
+                alert('Ошибка при отправке заказа');
+            }
+        });
+
+        checkHealth();
+        loadMenu();
+    </script>
+</body>
+</html>

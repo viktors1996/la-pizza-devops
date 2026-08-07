@@ -1,0 +1,44 @@
+
+services:
+  frontend:
+    build: ./frontend
+    container_name: pizza_frontend
+    restart: always
+
+  backend:
+    build: ./backend
+    container_name: pizza_backend
+    restart: always
+    environment:
+      - DB_HOST=db
+      - POSTGRES_DB=pizzadb
+      - POSTGRES_USER=pizza_user
+      - POSTGRES_PASSWORD=pizza_pass
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17-alpine
+    container_name: pizza_db
+    restart: always
+    environment:
+      POSTGRES_DB: pizzadb
+      POSTGRES_USER: pizza_user
+      POSTGRES_PASSWORD: pizza_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx:alpine
+    container_name: pizza_nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  postgres_data:
