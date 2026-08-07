@@ -17,3 +17,7 @@ venv/
 # OS junk
 .DS_Store
 Thumbs.db
+# Security & SSL Secrets
+nginx/*.key
+nginx/*.crt
+nginx/.htpasswd

@@ -1,0 +1,73 @@
+---
+- name: Deploy La Pizza DevOps Infrastructure
+  hosts: all
+  become: yes
+
+  vars:
+    repo_url: "https://github.com/viktors1996/la-pizza-devops.git"
+    project_dir: "/opt/la-pizza-devops"
+
+  tasks:
+    - name: 🔄 Update apt cache and install prerequisites
+      apt:
+        update_cache: yes
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - git
+        state: present
+
+    - name: 🔑 Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: 📦 Add Docker APT repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable"
+        state: present
+
+    - name: 🐳 Install Docker Engine & Compose plugin
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: yes
+
+    - name: 🚀 Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: 📥 Clone Git repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ project_dir }}"
+        version: main
+        force: yes
+
+    - name: 🔑 Generate self-signed SSL certificate on target server
+      shell: |
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+          -keyout {{ project_dir }}/nginx/nginx.key \
+          -out {{ project_dir }}/nginx/nginx.crt \
+          -subj "/C=AM/ST=Yerevan/L=Masis/O=LaPizza/OU=DevOps/CN=localhost"
+      args:
+        creates: "{{ project_dir }}/nginx/nginx.crt"
+
+    - name: 🔒 Generate .htpasswd file for Nginx Basic Auth
+      shell: |
+        htpasswd -b -c {{ project_dir }}/nginx/.htpasswd admin adminpassword
+      args:
+        creates: "{{ project_dir }}/nginx/.htpasswd"
+
+    - name: 🚀 Start application with Docker Compose
+      command: docker compose up -d --build
+      args:
+        chdir: "{{ project_dir }}"
