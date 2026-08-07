@@ -21,3 +21,6 @@ Thumbs.db
 nginx/*.key
 nginx/*.crt
 nginx/.htpasswd
+# Prometheus / Alertmanager Local Configs
+prometheus/alertmanager.yml
+ansible/inventory.ini
