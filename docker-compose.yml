@@ -110,10 +110,17 @@ services:
     image: prom/alertmanager:latest
     container_name: pizza_alertmanager
     restart: always
-    ports:
-      - "9093:9093"
+    env_file:
+      - .env
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        sed -i "s/\$TELEGRAM_BOT_TOKEN/$$TELEGRAM_BOT_TOKEN/g" /etc/alertmanager/alertmanager.yml
+        sed -i "s/\$TELEGRAM_CHAT_ID/$$TELEGRAM_CHAT_ID/g" /etc/alertmanager/alertmanager.yml
+        exec /bin/alertmanager --config.file=/etc/alertmanager/alertmanager.yml --storage.path=/alertmanager
     volumes:
-      - ./prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ./prometheus/alertmanager.yml.template:/etc/alertmanager/alertmanager.yml
     networks:
       - pizza_net
 

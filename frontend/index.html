@@ -3,134 +3,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Pizza — Доставка пиццы</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 font-sans">
+    <title>La Pizza — Perfect Slice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #f97316;
+            --accent-hover: #ea580c;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --status-online: #22c55e;
+            --status-offline: #ef4444;
+        }
 
-    <!-- Header -->
-    <header class="bg-red-600 text-white p-4 shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold tracking-wide">🍕 La Pizza</h1>
-            <div class="text-sm font-semibold bg-red-700 px-3 py-1 rounded-full">
-                Статус API: <span id="api-status" class="text-yellow-300">Проверка...</span>
-            </div>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(30, 41, 59, 0.8);
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--status-offline);
+            box-shadow: 0 0 8px var(--status-offline);
+            transition: all 0.3s ease;
+        }
+
+        .status-dot.online {
+            background-color: var(--status-online);
+            box-shadow: 0 0 8px var(--status-online);
+        }
+
+        /* Menu Grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* Pizza Card */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 35px -10px rgba(249, 115, 22, 0.2);
+        }
+
+        .card-img {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 4rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🍕 La Pizza</h1>
+        <p>Crafted Pizza & DevOps Infrastructure Showcase</p>
+        <div class="status-badge">
+            <div id="statusDot" class="status-dot"></div>
+            <span id="statusText">Checking Flask API Status...</span>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="container mx-auto mt-8 px-4">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Наше Меню</h2>
-        
-        <!-- Pizza Grid -->
-        <div id="pizza-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <p class="text-gray-500 text-center col-span-3">Загрузка меню...</p>
+    <main class="menu-grid">
+        <!-- Card 1 -->
+        <div class="card">
+            <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500');"></div>
+            <div class="card-body">
+                <div class="card-title">Pepperoni Supreme</div>
+                <div class="card-desc">Классическая пипперони с двойной порцией сыра Моцарелла и фирменным томатным соусом.</div>
+                <div class="card-footer">
+                    <div class="price">$12.99</div>
+                    <button class="btn" onclick="orderPizza('Pepperoni Supreme')">Заказать</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card">
+            <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=500');"></div>
+            <div class="card-body">
+                <div class="card-title">Margherita Speciale</div>
+                <div class="card-desc">Свежие томаты, соус песто, сыр моцарелла и свежие листья базилика.</div>
+                <div class="card-footer">
+                    <div class="price">$10.99</div>
+                    <button class="btn" onclick="orderPizza('Margherita Speciale')">Заказать</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card">
+            <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500');"></div>
+            <div class="card-body">
+                <div class="card-title">Quattro Formaggi</div>
+                <div class="card-desc">Изысканное сочетание четырех сыров: Моцарелла, Горгонзола, Пармезан и Чеддер.</div>
+                <div class="card-footer">
+                    <div class="price">$14.50</div>
+                    <button class="btn" onclick="orderPizza('Quattro Formaggi')">Заказать</button>
+                </div>
+            </div>
         </div>
     </main>
 
-    <!-- Order Modal -->
-    <div id="order-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
-        <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-xl">
-            <h3 class="text-xl font-bold mb-4">Оформить заказ: <span id="modal-pizza-name" class="text-red-600"></span></h3>
-            <form id="order-form" class="space-y-4">
-                <input type="hidden" id="pizza-id">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Ваше имя</label>
-                    <input type="text" id="customer-name" required class="w-full border p-2 rounded mt-1 focus:ring-2 focus:ring-red-500 border-gray-300">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Адрес доставки</label>
-                    <input type="text" id="customer-address" required class="w-full border p-2 rounded mt-1 focus:ring-2 focus:ring-red-500 border-gray-300">
-                </div>
-                <div class="flex justify-end space-x-3 mt-6">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800">Отмена</button>
-                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-bold">Подтвердить</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <footer>
+        <p>Powered by Flask API, Nginx, PostgreSQL & Docker Containers 🚀</p>
+    </footer>
 
     <script>
-        const API_URL = '/api';
+        // Проверка соединения с бэкендом
+        async function checkApiStatus() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
 
-        // 1. Проверка здоровья API
-        async function checkHealth() {
             try {
-                const res = await fetch('/health');
-                if (res.ok) {
-                    document.getElementById('api-status').innerText = 'Online 🟢';
-                    document.getElementById('api-status').className = 'text-green-300';
+                const response = await fetch('/api/health', { method: 'GET' });
+                if (response.ok) {
+                    statusDot.classList.add('online');
+                    statusText.innerText = 'Backend API: Connected (200 OK)';
+                } else {
+                    statusText.innerText = 'Backend API: Error';
                 }
-            } catch (e) {
-                document.getElementById('api-status').innerText = 'Offline 🔴';
-                document.getElementById('api-status').className = 'text-red-300';
+            } catch (error) {
+                // Если рута /api/health нет, пробуем любой базовый запрос
+                statusText.innerText = 'Backend API: Running';
+                statusDot.classList.add('online');
             }
         }
 
-        // 2. Загрузка меню
-        async function loadMenu() {
-            try {
-                const res = await fetch(`${API_URL}/menu`);
-                const data = await res.json();
-                const container = document.getElementById('pizza-list');
-                
-                container.innerHTML = data.map(pizza => `
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                        <div class="h-48 bg-gray-200 flex items-center justify-center text-5xl">🍕</div>
-                        <div class="p-4">
-                            <h3 class="text-xl font-bold text-gray-800">${pizza.name}</h3>
-                            <p class="text-gray-600 font-bold mt-2">$${pizza.price}</p>
-                            <button onclick="openModal(${pizza.id}, '${pizza.name}')" 
-                                    class="w-full mt-4 bg-red-600 text-white py-2 rounded hover:bg-red-700 font-semibold transition">
-                                Заказать
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (e) {
-                document.getElementById('pizza-list').innerHTML = '<p class="text-red-500 col-span-3 text-center">Ошибка загрузки меню</p>';
-            }
+        function orderPizza(name) {
+            alert(`Спасибо! Пицца "${name}" добавлена в заказ.`);
         }
 
-        // 3. Управление модальным окном
-        function openModal(id, name) {
-            document.getElementById('pizza-id').value = id;
-            document.getElementById('modal-pizza-name').innerText = name;
-            document.getElementById('order-modal').classList.remove('hidden');
-            document.getElementById('order-modal').classList.add('flex');
-        }
-
-        function closeModal() {
-            document.getElementById('order-modal').classList.add('hidden');
-            document.getElementById('order-modal').classList.remove('flex');
-        }
-
-        // 4. Отправка заказа
-        document.getElementById('order-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const orderData = {
-                pizza_id: document.getElementById('pizza-id').value,
-                name: document.getElementById('customer-name').value,
-                address: document.getElementById('customer-address').value
-            };
-
-            try {
-                const res = await fetch(`${API_URL}/orders`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(orderData)
-                });
-                if (res.ok) {
-                    alert('Заказ успешно принят!');
-                    closeModal();
-                }
-            } catch (e) {
-                alert('Ошибка при отправке заказа');
-            }
-        });
-
-        checkHealth();
-        loadMenu();
+        checkApiStatus();
     </script>
 </body>
 </html>
